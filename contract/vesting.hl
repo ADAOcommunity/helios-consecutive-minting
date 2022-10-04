@@ -1,0 +1,52 @@
+spending vesting
+
+          struct VestingTranche {
+              time:  Time // 'amount' is available after 'time'
+              amount: Value
+
+              func available_from(self, time: Time) -> Value {
+                  if (time >= self.time) {
+                      self.amount
+                  } else {
+                      Value::ZERO
+                  }
+              }
+
+              func remaining_from(self, time: Time) -> Value {
+                  self.amount - self.available_from(time)
+              }
+          }
+
+          struct VestingParams {
+              tranche1: VestingTranche
+              tranche2: VestingTranche
+              owner:    PubKeyHash
+              func remaining_from(self, time: Time) -> Value {
+                  self.tranche1.remaining_from(time) + self.tranche2.remaining_from(time)
+              }
+          }
+
+           const PUB_KEY_HASH_BYTES: ByteArray  = #${pubkey_hash}
+          
+          const PARAMS: VestingParams = VestingParams {
+              tranche1: VestingTranche {
+                time: Time::new(${tranche1Time}),
+                amount: Value::lovelace(1000000)
+              },
+              tranche2: VestingTranche {
+                time: Time::new(${tranche2Time}),
+                amount: Value::lovelace(1000000)
+              },
+              owner: PubKeyHash::new(PUB_KEY_HASH_BYTES)
+          }
+
+
+          // the compiler is smart enough to add an empty Datum and empty Redeemer as arguments to the actual main entrypoint function
+          func main(ctx: ScriptContext) -> Bool {
+              tx: Tx = ctx.tx;
+              now: Time = tx.now();
+              print(now.show());
+              remaining_actual: Value = tx.value_locked_by(ctx.get_current_validator_hash());
+              remaining_expected: Value = PARAMS.remaining_from(now);
+              remaining_actual >= remaining_expected && tx.is_signed_by(PARAMS.owner)
+          }
