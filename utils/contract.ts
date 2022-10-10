@@ -1,5 +1,5 @@
 
-const optimize = false;
+const optimize = true;
 import { Address, Program, PubKeyHash, UplcProgram } from '@hyperionbt/helios'
 import { Assets, toHex, C, UTxO, Data, Lucid } from 'lucid-cardano'
 import { format } from 'path';
@@ -77,19 +77,9 @@ struct Datum {
         remaining: Value = self.funds - self.price;
         tx.value_locked_by_datum(contract_hash, self.next_datum(remaining), true) >= remaining
     }
-    // func cancelled_amount_correctly(self, tx: Tx, contract_hash: ValidatorHash) -> Bool {
-    //     requested_intervals: Int = (self.funds - tx.value_locked_by_datum(contract_hash, self, true)).get(AssetClass::ADA) / self.price.get(AssetClass::ADA);
-    //     expired_intervals: Int = (tx.now() - self.next_withdrawal + self.interval)/self.interval;
-    //     remaining_intervals: Int = self.funds.get(AssetClass::ADA) / self.price.get(AssetClass::ADA);
-    //     print("expired: "+expired_intervals.show());
-    //     print("requested_intervals: "+requested_intervals.show());
-    //     print("remaining_intervals: "+remaining_intervals.show());
-    //     remaining_intervals - expired_intervals >= requested_intervals
-    // }
 }
 func main(datum: Datum, ctx: ScriptContext) -> Bool {
     tx: Tx = ctx.tx;
-    //cancelled_correctly: Bool = datum.cancelled_amount_correctly(tx,  ctx.get_current_validator_hash());
     //TO DO: allow vendor to withdraw multiple intervals at once
     //we count how many utxos with datum we have in input
     datums:Int=tx.inputs.map((x:TxInput)->Int{x.output.datum.switch{None => 0, else => 1}}).fold((sum:Int,x:Int)->Int{sum+x},0);
