@@ -38,10 +38,22 @@ const CustomerPage: NextPage = () => {
 
     return (
         <>
-            <WalletConnect />
-            {/* <input type="text" onChange={(e) => { setCustomerAddress(e.target.value) }} value={customerAddress} placeholder="Enter vendor address" className="input input-bordered input-primary w-full max-w-xs" />
+            <div className="hero min-h-screen bg-base-200 w-full">
+                <div className="hero-content flex-col w-full">
+                    <div className="card flex-shrink-0 shadow-2xl bg-base-100">
+                        <div className="card-body mb-20 mx-5">
+                            <div className="text-center lg:text-left">
+                                <h1 className="text-3xl font-bold">Subscriptions</h1>
+                                <p className="py-4 break-all max-w-fit">Connect your wallet to see your active subscriptions.</p>
+                                <WalletConnect />
+                                {/* <input type="text" onChange={(e) => { setCustomerAddress(e.target.value) }} value={customerAddress} placeholder="Enter vendor address" className="input input-bordered input-primary w-full max-w-xs" />
             <button disabled={!customerAddress.startsWith("addr")} className={`btn btn-primary`} onClick={() => { getSubscriptionList(walletStore.address)}} >Search</button> */}
-            <CustomerTable subscriptionList={subscriptionList} scriptAddress={scriptAddress} customerAddress={customerAddress} />
+                                <CustomerTable subscriptionList={subscriptionList} scriptAddress={scriptAddress} customerAddress={customerAddress} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </>
     )
 }

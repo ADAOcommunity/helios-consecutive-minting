@@ -8,6 +8,8 @@ import { Lucid, SpendingValidator, Data, UTxO } from 'lucid-cardano'
 import { getCompiledProgram, generateDatum, SubscriptionData, UTxOWithDatum, reconstructDatum, getSubscriptionData } from '../utils/contract'
 import { useRouter } from 'next/router'
 import { calculateTotalPrice } from '../utils/contract'
+import Link from 'next/link'
+import MessageModal from '../components/MessageModal'
 
 const Subscription: NextPage = () => {
   const router = useRouter();
@@ -26,19 +28,24 @@ const Subscription: NextPage = () => {
   const [totalPrice, setTotalPrice] = useState<string>("0")
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData>()
   const [subscriptionStart, setSubscriptionStart] = useState(Date.now())
+  const [displayMessage, setDisplayMessage] = useState<{title: string, message: string}>({title:"", message:""})
+  const [showModal, setShowModal] = useState<boolean>(false)
 
   const selectPeriods = (periodValue: number) => {
     console.log(periodValue)
     if (isNaN(periodValue) || periodValue === 0) {
       setTotalPrice("0")
       setDisabled(true)
-    } else {
+    } else if (walletStore.address) {
       const funds = calculateTotalPrice(periodValue, price)
       setTotalPrice((Number(funds.lovelace) / 1000000).toFixed(4))
       setDisabled(false)
     }
     setSelectedPeriods(periodValue < 0 ? 1 : periodValue);
   }
+  useEffect(() => {
+    console.log("show modal", showModal)
+  }, [showModal])
 
   useEffect(() => {
     if (lucid) {
@@ -61,13 +68,18 @@ const Subscription: NextPage = () => {
       setCustomerPkh(custPkh)
       lucid!.utxosAt(scriptAddr).then((contractUtxos: UTxO[]) => {
         console.log(contractUtxos, vendPkh)
-        getSubscriptionData(lucid, vendPkh, custPkh, contractUtxos).then((data) => {
-          console.log("data", data)
-          setSubscriptionData(data)
-          if (data.isSubscribed) { setSubscriptionStart(data.subscribedUntil) }
-        })
+        getSubscriptionData(lucid, vendPkh, custPkh, contractUtxos)
+          .then((data) => {
+            console.log("data", data)
+            setSubscriptionData(data)
+            if (data.isSubscribed) { setSubscriptionStart(data.subscribedUntil) }
+          }).catch((err) => {
+            setDisplayMessage({title:"Error", message:err.message})
+            setShowModal(true)
+          })
       })
-    } else if(walletStore.name) {
+
+    } else if (walletStore.name) {
       initLucid(walletStore.name).then((Lucid: Lucid) => { setLucid(Lucid) })
     }
   }, [lucid, walletStore.address])
@@ -80,13 +92,16 @@ const Subscription: NextPage = () => {
       const generatedDatum = generateDatum(customerPkh, vendorPkh, funds, priceValue, intervalMs, new Date(subscriptionStart))
       const tx = await lucid.newTx()
         .payToContract(scriptAddress, { inline: generatedDatum }, funds)
-         /* .payToContract(scriptAddress, {
-           asHash: Data.empty(),
-           scriptRef: script, // adding plutusV2 script to output
-         }, { lovelace: BigInt(0) }) */
+        /* .payToContract(scriptAddress, {
+          asHash: Data.empty(),
+          scriptRef: script, // adding plutusV2 script to output
+        }, { lovelace: BigInt(0) }) */
         .complete();
       const signedTx = await tx.sign().complete();
-      console.log(await signedTx.submit());
+      const txHash = await signedTx.submit()
+      setDisplayMessage({title:"Transaction submitted", message:`Tx hash: ${txHash}`})
+      setShowModal(true)
+      console.log(txHash);
     }
 
   }
@@ -94,6 +109,7 @@ const Subscription: NextPage = () => {
 
   return (
     <div className="hero min-h-screen bg-base-200">
+      <MessageModal message={displayMessage.message} active={showModal} title={displayMessage.title} />
       <div className="hero-content flex-col ">
         <div className="card flex-shrink-0 w-full max-w-lg shadow-2xl bg-base-100">
           <div className="card-body">
@@ -101,6 +117,9 @@ const Subscription: NextPage = () => {
               <h1 className="text-5xl font-bold">Subscribe now!</h1>
               <p className="py-4 break-all max-w-fit">Connect your wallet. If you are already subscribed to this vendor, the "subscription start date" will automatically be set to the end of you current subscription so you can add more time to it.</p>
               <WalletConnect />
+              <Link href="/customer">
+                <button className="btn btn-primary m-1 p-0 w-40" >My subscriptions</button>
+              </Link>
               <h1 className="text-xl font-bold text-accent">{subscriptionData?.isSubscribed ? "You are already subscribed!" : ""}</h1>
               <h1 className="text-2xl font-bold">Vendor Pubkeyhash:</h1>
               <p className="py-4 break-all">{vendorPkh}</p>

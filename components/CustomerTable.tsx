@@ -21,7 +21,7 @@ const CustomerTable = (props: any) => {
     return (
         <>
             {subscriptionList.length > 0 &&
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto my-5">
                     <table className="table table-zebra w-full">
                         <thead>
                             <tr>

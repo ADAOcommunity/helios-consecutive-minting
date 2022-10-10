@@ -38,10 +38,23 @@ const VendorPage: NextPage = () => {
 
     return (
         <>
-            <WalletConnect />
-            <input type="text" onChange={(e) => { setVendorAddress(e.target.value) }} value={vendorAddress} placeholder="Enter vendor address" className="input input-bordered input-primary w-full max-w-xs" />
-            <button disabled={!vendorAddress.startsWith("addr")} className={`btn btn-primary`} onClick={() => { getCustomerList(vendorAddress, scriptAddress)}} >Search</button>
-            <VendorTable customerList={customerList} scriptAddress={scriptAddress} vendorAddress={vendorAddress} />
+
+            <div className="hero min-h-screen bg-base-200 w-full">
+                <div className="hero-content flex-col w-full">
+                    <div className="card flex-shrink-0 shadow-2xl bg-base-100">
+                        <div className="card-body mb-20 mx-5">
+                            <div className="text-center lg:text-left">
+                                <h1 className="text-3xl font-bold">Subscriptions</h1>
+                                <p className="py-4 break-all max-w-fit">Connect your wallet to see your subscribers.</p>
+                                <WalletConnect />
+                                {/* <input type="text" onChange={(e) => { setVendorAddress(e.target.value) }} value={vendorAddress} placeholder="Enter vendor address" className="input input-bordered input-primary w-full max-w-xs" />
+                                <button disabled={!vendorAddress.startsWith("addr")} className={`btn btn-primary`} onClick={() => { getCustomerList(vendorAddress, scriptAddress) }} >Search</button> */}
+                                <VendorTable customerList={customerList} scriptAddress={scriptAddress} vendorAddress={vendorAddress} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </>
     )
 }

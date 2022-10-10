@@ -22,8 +22,8 @@ const VendorTable = (props: any) => {
     return (
         <>
             {customerList.length > 0 &&
-                <div className="overflow-x-auto">
-                    <table className="table table-zebra w-full">
+                <div className="overflow-x-auto my-5 mx-0 px-0">
+                    <table className="table table-zebra w-full m-0">
                         <thead>
                             <tr>
                                 <th>Customer pubkey hash</th>
@@ -36,14 +36,13 @@ const VendorTable = (props: any) => {
                         </thead>
                         <tbody>
                             {customerList.map((customer: CustomerData) => {
-                                return <ClientRow customer={customer} vendorAddress={props.vendorAddress} scriptAddress={props.scriptAddress} lucid={lucid}/>
+                                return <ClientRow customer={customer} vendorAddress={props.vendorAddress} scriptAddress={props.scriptAddress} lucid={lucid} />
                             })}
                         </tbody>
                     </table>
                 </div>}
-                {customerList.length === 0 && 
+            {customerList.length === 0 &&
                 <div>No subscriptions</div>}
-
         </>
     )
 }

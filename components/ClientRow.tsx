@@ -3,6 +3,7 @@ import { Data, UTxO } from 'lucid-cardano';
 import { useState } from 'react'
 import { useStoreActions, useStoreState } from "../utils/store";
 import { generateDatum } from '../utils/contract';
+import MessageModal from './MessageModal';
 
 
 
@@ -11,6 +12,8 @@ const ClientRow = (props: any) => {
     const vendorAddress = props.vendorAddress
     const lucid = props.lucid
     const walletStore = useStoreState((state: any) => state.wallet)
+    const [displayMessage, setDisplayMessage] = useState<{ title: string, message: string }>({ title: "", message: "" })
+    const [showModal, setShowModal] = useState<boolean>(false)
 
     const redeemUtxo = async () => {
         if (lucid) {
@@ -55,11 +58,15 @@ const ClientRow = (props: any) => {
                 .complete({ nativeUplc: false });
 
             const signedTx = await tx.sign().complete();
-            console.log(await signedTx.submit());
+            const txHash = await signedTx.submit()
+            setDisplayMessage({ title: "Transaction submitted", message: `Tx hash: ${txHash}` })
+            setShowModal(true)
+            console.log(txHash);
         }
     }
     return (
         <>
+            <MessageModal message={displayMessage.message} active={showModal} title={displayMessage.title} />
             <tr>
                 <td>{customer.customerPkh}</td>
                 <td>{customer.subscriptionData.isSubscribed ? "Yes" : "No"}</td>

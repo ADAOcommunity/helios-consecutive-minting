@@ -190,7 +190,7 @@ export const calculateTotalPrice = (periods: number, periodPrice: number): Asset
 }
 
 
-export const getSubscriptionData = async (lucid: Lucid, vendorPkh: string, customerPkh: string, contractUtxos: UTxO[]) => {
+export const getSubscriptionData = async (lucid: Lucid, vendorPkh: string, customerPkh: string, contractUtxos: UTxO[]): Promise<SubscriptionData> => {
     const utxos: UTxO[] = []
     let highestNextWithdrawal = 0   //highest value of next_withdrawal in utxos
     let lowestNextWithdrawal = 0   //lowest value of next_withdrawal in utxos
@@ -211,6 +211,9 @@ export const getSubscriptionData = async (lucid: Lucid, vendorPkh: string, custo
             }
         }
     }
+    if(refUtxos.length === 0){
+        throw new Error("This vendor has not created a subscription plan. If you recently created one, please wait a few minutes and try again") 
+    }
     let refDatum = reconstructDatum(await lucid!.datumOf(refUtxos[refUtxos.length - 1]))
     console.log("refDatum", refDatum)
     for (let utxo of contractUtxos) {
@@ -219,7 +222,8 @@ export const getSubscriptionData = async (lucid: Lucid, vendorPkh: string, custo
             lockedFunds += Number(datum.funds)
             if (datum.customer == customerPkh && datum.vendor === vendorPkh) {
                 const utxoTotalPeriods = Number(datum.funds) / Number(refDatum.price)
-                console.log(Number(datum.next_withdrawal) >= Date.now(), (Number(datum.next_withdrawal) - Number(refDatum.interval)) <= Date.now())
+                totalPeriods += utxoTotalPeriods
+
                 if (Number(datum.next_withdrawal) + Number(refDatum.interval) * Number(datum.funds) / Number(refDatum.price) >= Date.now() && //checks if the latest next withdrawal hasn't expired by less than the remaining intervals
                     (Number(datum.next_withdrawal) - Number(refDatum.interval)) <= Date.now() &&
                     Number(utxo.assets.lovelace) >= Number(refDatum.price)) {
@@ -229,10 +233,9 @@ export const getSubscriptionData = async (lucid: Lucid, vendorPkh: string, custo
                     const calculatedClaimablePeriods = (Date.now() - Number(datum.next_withdrawal) + Number(datum.interval)) / Number(datum.interval)
                     const utxoClaimablePeriods = Math.round(calculatedClaimablePeriods < utxoTotalPeriods ? calculatedClaimablePeriods : utxoTotalPeriods)
                     const utxoClaimableAmount = utxoClaimablePeriods * Number(refDatum.price)
-                    totalPeriods += utxoTotalPeriods
                     claimablePeriods += utxoClaimablePeriods
                     claimableAmount += utxoClaimableAmount
-                }
+                } 
                 if (Number(datum.next_withdrawal) > highestNextWithdrawal) {
                     highestNextWithdrawal = Number(datum.next_withdrawal)
                     subscribedUntil = highestNextWithdrawal - Number(refDatum.interval) + Number(refDatum.interval) * Number(datum.funds) / Number(refDatum.price)
