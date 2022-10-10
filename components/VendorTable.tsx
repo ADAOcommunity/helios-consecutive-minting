@@ -36,7 +36,7 @@ const VendorTable = (props: any) => {
                         </thead>
                         <tbody>
                             {customerList.map((customer: CustomerData) => {
-                                return <ClientRow customer={customer} vendorAddress={props.vendorAddress} scriptAddress={props.scriptAddress} lucid={lucid} />
+                                return <ClientRow key={customer.customerPkh} customer={customer} vendorAddress={props.vendorAddress} scriptAddress={props.scriptAddress} lucid={lucid} />
                             })}
                         </tbody>
                     </table>

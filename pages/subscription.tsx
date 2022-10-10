@@ -115,7 +115,7 @@ const Subscription: NextPage = () => {
           <div className="card-body">
             <div className="text-center lg:text-left">
               <h1 className="text-5xl font-bold">Subscribe now!</h1>
-              <p className="py-4 break-all max-w-fit">Connect your wallet. If you are already subscribed to this vendor, the "subscription start date" will automatically be set to the end of you current subscription so you can add more time to it.</p>
+              <p className="py-4 break-all max-w-fit">Connect your wallet. If you are already subscribed to this vendor, the &quot;subscription start date&quot; will automatically be set to the end of you current subscription so you can add more time to it.</p>
               <WalletConnect />
               <Link href="/customer">
                 <button className="btn btn-primary m-1 p-0 w-40" >My subscriptions</button>
