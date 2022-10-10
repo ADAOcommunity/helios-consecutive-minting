@@ -9,9 +9,9 @@ const WalletConnect = () => {
     const setWallet = useStoreActions(actions => actions.setWallet)
     const availableWallets = useStoreState(state => state.availableWallets)
     const setAvailableWallets = useStoreActions(actions => actions.setAvailableWallets)
-    
+
     const [connectedAddress, setConnectedAddress] = useState("")
-    
+
     const loadWalletSession = async () => {
         if (walletStore.connected &&
             walletStore.name &&
@@ -51,14 +51,17 @@ const WalletConnect = () => {
 
     return (
         <>
-            <div className="dropdown dropdown-end">
-                <label tabIndex={0} className="btn m-1">{connectedAddress != "" ? 'Connected' : 'Connect'}</label>
-                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-52">
-                    {availableWallets.map((wallet) =>
-                        <li key={wallet} onClick={() => { selectWallet(wallet) }} ><a>{wallet}</a></li>
-                    )}
-                </ul>
+            <div className="tooltip text-ellipsis" data-tip={connectedAddress.slice(0,8)+"..."+connectedAddress.slice(connectedAddress.length-4,connectedAddress.length)}>
+                <div className="dropdown dropdown-start">
+                    <label tabIndex={0} className="btn m-1 bg-neutral">{connectedAddress != "" ? 'Connected' : 'Connect'}</label>
+                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-52 z-10">
+                        {availableWallets.map((wallet) =>
+                            <li key={wallet} onClick={() => { selectWallet(wallet) }} ><a>{wallet}</a></li>
+                        )}
+                    </ul>
+                </div>
             </div>
+
         </>
     )
 }

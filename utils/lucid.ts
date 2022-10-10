@@ -4,10 +4,9 @@ const initLucid = async (wallet: string) => {
     const api = (await window.cardano[
         wallet.toLowerCase()
     ].enable())
-
     const lucid = await Lucid.new(
-        new Blockfrost('https://cardano-preview.blockfrost.io/api/v0', process.env.NEXT_PUBLIC_BLOCKFROST as string),
-        'Preview')
+        new Blockfrost('https://cardano-preprod.blockfrost.io/api/v0', process.env.NEXT_PUBLIC_BLOCKFROST as string),
+        'Preprod')
     lucid.selectWallet(api)
     //setLucid(lucid)
     return lucid;
