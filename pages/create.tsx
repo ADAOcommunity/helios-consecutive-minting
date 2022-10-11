@@ -89,7 +89,7 @@ const CreateSubscription: NextPage = () => {
             <div className="form-control mt-6">
               <button disabled={!lucid || price === 0 || intervalDays === 0} className={`btn btn-primary `} onClick={() => { lockUtxo(vendorPkh, vendorPkh) }} >Create subscription</button>
             </div>
-            <h1 className="text-xl font-bold">Use the URL below to your prospects:</h1>
+            <h1 className="text-xl font-bold">Share the URL below to your prospects:</h1>
             <input type="text" placeholder="" value={url} className="input display-none input-bordered input-primary my-3 w-sm max-w-xs" />
 
           </div>
