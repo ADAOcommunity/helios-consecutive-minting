@@ -102,8 +102,8 @@ const Initialize: NextPage = () => {
                 <div className="card flex-shrink-0 w-full max-w-lg shadow-2xl bg-base-100">
                     <div className="card-body">
                         <div className="text-center lg:text-left">
-                            <h1 className="text-5xl font-bold">Subscribe now!</h1>
-                            <p className="py-4 break-all max-w-fit">Connect your wallet. If you are already subscribed to this vendor, the &quot;subscription start date&quot; will automatically be set to the end of you current subscription so you can add more time to it.</p>
+                            <h1 className="text-5xl font-bold">NFT minter</h1>
+                            <p className="py-4 break-all max-w-fit">Create your NFT collection by filling the parameters below.</p>
                             <WalletConnect />
                             <h1 className="text-2xl font-bold">Your Address:</h1>
                             <p className="py-4 break-all">{walletStore.address}</p>

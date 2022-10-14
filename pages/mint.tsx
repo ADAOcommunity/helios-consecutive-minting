@@ -133,8 +133,8 @@ const MintPage: NextPage = () => {
                 <div className="card flex-shrink-0 w-full max-w-lg shadow-2xl bg-base-100">
                     <div className="card-body">
                         <div className="text-center lg:text-left">
-                            <h1 className="text-5xl font-bold">Subscribe now!</h1>
-                            <p className="py-4 break-all max-w-fit">Connect your wallet. If you are already subscribed to this vendor, the &quot;subscription start date&quot; will automatically be set to the end of you current subscription so you can add more time to it.</p>
+                            <h1 className="text-5xl font-bold">Mint!</h1>
+                            {/* <p className="py-4 break-all max-w-fit">Connect your wallet. If you are already subscribed to this vendor, the &quot;subscription start date&quot; will automatically be set to the end of you current subscription so you can add more time to it.</p> */}
                             <WalletConnect />
                             <h1 className="text-2xl font-bold">Policy Id:</h1>
                             <p className="py-4 break-all">{nftPolicyId}</p>
