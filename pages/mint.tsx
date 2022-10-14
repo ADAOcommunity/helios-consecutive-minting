@@ -107,7 +107,7 @@ const MintPage: NextPage = () => {
                       [queriedDatum!.tokenName+nftNumber.toString()]: {
                         image:"ipfs://QmNyHUZxfRxGpwg9QSbe3cMDkaT8so17TRvzXpNio5gbGf",
                         mediaType: "image/png",
-                        name:queriedDatum!.tokenName +"#"+nftNumber,
+                        name:queriedDatum!.tokenName +" #"+nftNumber,
                         description:"This is cool NFT minted by a Plutus SC."
                       },
                     },
