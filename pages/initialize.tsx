@@ -137,7 +137,7 @@ const Initialize: NextPage = () => {
                         </div>
 
                         <div className="form-control mt-6">
-                            <button className={`btn btn-primary `} onClick={() => { mintSeedNft(walletStore.address) }} >Create collection</button>
+                            <button className={`btn btn-primary `} onClick={() => { mintSeedNft() }} >Create collection</button>
                         </div>
                     </div>
                 </div>
