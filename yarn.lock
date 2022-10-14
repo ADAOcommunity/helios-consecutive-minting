@@ -56,10 +56,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@hyperionbt/helios@^0.6.9":
-  version "0.6.9"
-  resolved "https://registry.yarnpkg.com/@hyperionbt/helios/-/helios-0.6.9.tgz#d6b0ef27bea6d57c5d1846df6d1d27089f93bd09"
-  integrity sha512-jwVBmZsjT1dBNpup1b1eFJTycqYY5d53uVhB2V2/PsbOiIfH62sCDB17fGDquALjtLS6XnCgiT6kQQ6jBAU12A==
+"@hyperionbt/helios@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@hyperionbt/helios/-/helios-0.7.1.tgz#160cb953294005651dbc4e47c5db0f39b404f64c"
+  integrity sha512-kGd1P1PY42xNLM3EvXcM9vkJWF6WjaCnVruaLgZ0Yyg+U2tACvVLXxO1cda4A/MBzsf4JICG5W3qqZt4m65WyA==
 
 "@next/env@12.3.1":
   version "12.3.1"

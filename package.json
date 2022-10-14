@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hyperionbt/helios": "^0.6.9",
+    "@hyperionbt/helios": "^0.7.1",
     "daisyui": "^2.31.0",
     "easy-peasy": "^5.1.0",
     "lucid-cardano": "^0.6.6",
