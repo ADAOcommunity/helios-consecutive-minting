@@ -81,6 +81,7 @@ const MintPage: NextPage = () => {
         return utxo
     }
     const mint = async () => {
+        const refUtxo = await findRefUtxo(threadAddress)
         const sellerPkh = queriedDatum!.sellerPkh;
         const sellerAddress = queriedDatum!.sellerAddress
         const threadTokenAssetName = threadTokenPolicy + Buffer.from(threadTokenName).toString("hex")
@@ -108,7 +109,7 @@ const MintPage: NextPage = () => {
                         image:"ipfs://QmNyHUZxfRxGpwg9QSbe3cMDkaT8so17TRvzXpNio5gbGf",
                         mediaType: "image/png",
                         name:queriedDatum!.tokenName +" #"+nftNumber,
-                        description:"This is cool NFT minted by a Plutus SC."
+                        description:"This is a cool NFT minted by a Plutus SC."
                       },
                     },
                   })
