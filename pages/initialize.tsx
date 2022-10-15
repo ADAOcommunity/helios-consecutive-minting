@@ -1,7 +1,6 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
 import WalletConnect from '../components/WalletConnect'
-import { useStoreActions, useStoreState } from "../utils/store"
+import { useStoreState } from "../utils/store"
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { Data, Lucid, SpendingValidator, Tx } from 'lucid-cardano'
@@ -58,7 +57,6 @@ const Initialize: NextPage = () => {
         const lastInterval = maxSupply - interval * (threadNum-1)
         const threadToken = threadPolicyId + Buffer.from(nftName).toString("hex")
         for(let i=0; i<(maxSupply-interval); i=i+interval){
-            console.log("i", i)
             let datum = generateDatum(sellerPkh, walletStore.address, i+interval, nftName, threadPolicyId, nftPolicyId, price * 1000000, i)
             txWithOutputs=txWithOutputs.payToContract(threadAddress, { inline: datum }, { [threadToken]: BigInt(1) })
         }
@@ -131,10 +129,6 @@ const Initialize: NextPage = () => {
                                     <span className="label-text-alt">e.g.: SpaceBudz</span>
                                 </label>
                                 <input type="text" placeholder="Enter token name" value={nftName} onChange={(e) => { setNftName(e.target.value) }} className="input input-bordered w-full max-w-xs" />
-                                {/* <label className="label">
-                                    <span className="label-text-alt">Alt label</span>
-                                    <span className="label-text-alt">Alt label</span>
-                                </label> */}
                                 <label className="label mt-5">
                                     <span className="label-text">Price</span>
                                     <span className="label-text-alt">Price per NFT</span>

@@ -1,12 +1,10 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
 import WalletConnect from '../components/WalletConnect'
-import { useStoreActions, useStoreState } from "../utils/store"
-import Link from 'next/link'
+import {  useStoreState } from "../utils/store"
 import { useState, useEffect } from 'react'
-import { C, Data, Lucid, SpendingValidator, Tx, TxComplete, UTxO, } from 'lucid-cardano'
+import { Data, Lucid, SpendingValidator, Tx, TxComplete, } from 'lucid-cardano'
 import initLucid from '../utils/lucid'
-import { generateDatum, generateMintingContractWithParams, generateThreadContract, reconstructDatum, ReconstructedDatum } from '../contracts/contract'
+import { generateDatum, generateMintingContractWithParams, generateThreadContract, reconstructDatum } from '../contracts/contract'
 import MessageModal from '../components/MessageModal'
 import LoadingModal from '../components/LoadingModal'
 import { useRouter } from 'next/router'
@@ -49,7 +47,6 @@ const MintPage: NextPage = () => {
             setThreadScript(threadScript)
             setThreadAddress(threadAddr)
             findRefUtxo(threadAddr)
-            console.log("finding")
             const nftScript: SpendingValidator = {
                 type: "PlutusV2",
                 script: JSON.parse(generateMintingContractWithParams(threadTokenPolicy, threadTokenName).serialize()).cborHex,
@@ -73,26 +70,21 @@ const MintPage: NextPage = () => {
             return { utxo, reconstructedDatum }
         } catch (err) {
             const threadTokenAssetName = threadTokenPolicy + Buffer.from(threadTokenName).toString("hex")
-            console.log(threadTokenAssetName)
             const utxos = await lucid!.utxosAtWithUnit(threadAddr, threadTokenAssetName)
-            console.log(utxos)
             console.log("Searching UTxO...")
             setIntervalId(setTimeout(() => { findRefUtxo(threadAddr) }, 5000))
         }
     }
     const mint = async () => {
+        setShowModal(false)
         const refUtxo = await findRefUtxo(threadAddress)
         const sellerPkh = refUtxo!.reconstructedDatum.sellerPkh;
         const sellerAddress = refUtxo!.reconstructedDatum.sellerAddress
         const threadTokenAssetName = threadTokenPolicy + Buffer.from(threadTokenName).toString("hex")
-        console.log(refUtxo!.reconstructedDatum)
-        console.log(threadTokenPolicy)
-        console.log(threadTokenAssetName)
         const nftNumber = refUtxo!.reconstructedDatum.count + 1
         const datum = generateDatum(sellerPkh, sellerAddress, refUtxo!.reconstructedDatum.maxSupply, refUtxo!.reconstructedDatum.tokenName, threadTokenPolicy, nftPolicyId, refUtxo!.reconstructedDatum.price, nftNumber)
         const price = { lovelace: BigInt(refUtxo!.reconstructedDatum.price) }
         const nftAssetname = nftPolicyId + Buffer.from(refUtxo!.reconstructedDatum.tokenName + nftNumber.toString()).toString("hex")
-        console.log(refUtxo)
         if (lucid) {
             let tx: TxComplete | undefined = undefined
             try {
@@ -123,14 +115,16 @@ const MintPage: NextPage = () => {
                 mint()
             }
             if (tx) {
-                const signedTx = await tx.sign().complete();
-                const txHash = await signedTx.submit()
-                setDisplayMessage({ title: "Transaction submitted", message: `Tx hash: ${txHash}` })
-                setShowModal(true)
-                console.log(txHash);
-            } else {
-                setDisplayMessage({ title: "Busy UTxO", message: "This UTxO is busy, please try again." })
-                setShowModal(true)
+                try{
+                    const signedTx = await tx.sign().complete();
+                    const txHash = await signedTx.submit()
+                    setDisplayMessage({ title: "Transaction submitted", message: `Tx hash: ${txHash}` })
+                    setShowModal(true)
+                    console.log(txHash);
+                } catch (err: any){
+                    setDisplayMessage({ title: "Busy UTxO", message: JSON.stringify(err.info)})
+                    setShowModal(true)
+                }
             }
         }
 

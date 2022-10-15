@@ -1,7 +1,6 @@
 
-const optimize = false;
-import { MintingPolicyHash, Program, PubKeyHash, UplcData, UplcDataValue } from '@hyperionbt/helios'
-import { C, toHex } from 'lucid-cardano';
+const optimize = true;
+import { Program } from '@hyperionbt/helios'
 
 export const contractScript = (SELLER_BYTES: string, tokenName: string) => ` 
 minting  seed_token
@@ -28,7 +27,6 @@ export const generateContract = (sellerPkh: string, collectionName: string): any
         SELLER_BYTES = "#"+sellerPkh
     }
     const contract = contractScript(SELLER_BYTES, `"${collectionName}"`)
-    console.log(contract)
     const program = Program.new(contract);
 
     return program.compile(optimize);
