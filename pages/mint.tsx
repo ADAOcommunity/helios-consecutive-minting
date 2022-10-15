@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import WalletConnect from '../components/WalletConnect'
-import {  useStoreState } from "../utils/store"
+import { useStoreState } from "../utils/store"
 import { useState, useEffect } from 'react'
 import { Data, Lucid, SpendingValidator, Tx, TxComplete, } from 'lucid-cardano'
 import initLucid from '../utils/lucid'
@@ -8,11 +8,14 @@ import { generateDatum, generateMintingContractWithParams, generateThreadContrac
 import MessageModal from '../components/MessageModal'
 import LoadingModal from '../components/LoadingModal'
 import { useRouter } from 'next/router'
+import { url } from 'inspector'
+import Link from 'next/link';
 
 const MintPage: NextPage = () => {
     const router = useRouter();
     const threadTokenPolicy = router.query["threadTokenPolicy"] as string;
     const threadTokenName = router.query["collectionName"] as string;
+    const [contractUrl, setContractUrl] = useState<{ text: string, url: string }>({ text: "", url: "/" })
 
     const walletStore = useStoreState((state: any) => state.wallet)
     const [lucid, setLucid] = useState<Lucid>()
@@ -53,6 +56,7 @@ const MintPage: NextPage = () => {
             };
             setMintPolicyScript(nftScript.script)
             setNftPolicyId(lucid!.utils.validatorToScriptHash(nftScript))
+            setContractUrl({ text: "See contract code", url: `/contractcode?threadTokenPolicy=${threadTokenPolicy}&collectionName=${threadTokenName}` })
         }
     }, [lucid])
     const findRefUtxo = async (threadAddr: string) => {
@@ -115,14 +119,14 @@ const MintPage: NextPage = () => {
                 mint()
             }
             if (tx) {
-                try{
+                try {
                     const signedTx = await tx.sign().complete();
                     const txHash = await signedTx.submit()
                     setDisplayMessage({ title: "Transaction submitted", message: `Tx hash: ${txHash}` })
                     setShowModal(true)
                     console.log(txHash);
-                } catch (err: any){
-                    setDisplayMessage({ title: "Busy UTxO", message: JSON.stringify(err.info)})
+                } catch (err: any) {
+                    setDisplayMessage({ title: "Busy UTxO", message: JSON.stringify(err.info) })
                     setShowModal(true)
                 }
             }
@@ -149,6 +153,8 @@ const MintPage: NextPage = () => {
                         <div className="form-control mt-6">
                             <button className={`btn btn-primary `} onClick={() => { mint() }} >Mint</button>
                         </div>
+                        {contractUrl.text && <p><Link href={contractUrl.url}><a className="link link-primary text-xl">{contractUrl.text}</a></Link></p>}
+
                     </div>
                 </div>
             </div>

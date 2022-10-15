@@ -28,8 +28,6 @@ func main(ctx: ScriptContext) -> Bool {
 const threadContract = `
 spending thread_contract
 
-//const THREAD_POLICY_BYTES = #
-//const thread_nft: Value = Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), NAME.encode_utf8()), 1)
 struct Datum {
     token_name:          String                      //the name of the nft collection
     minting_policy_hash: MintingPolicyHash  //the policy hash of the nft collection
@@ -104,6 +102,20 @@ const DATUM: Datum = Datum {
 `;
 
 const src = threadContract + datumScript;
+
+export const generateStyledMintingContract = (threadPolicy: string, tokenName: string): any => {
+    let contract = mintingContract.replace('NAME = ""', `NAME = "${tokenName}"`)
+    contract = contract.replace('THREAD_POLICY_BYTES = #', `THREAD_POLICY_BYTES = #${threadPolicy}`)
+    const programArray = contract.split("\n")
+    const programType = programArray[1]
+    return programArray
+}
+
+export const generateStyledThreadContract = (): any => {
+    const programArray = threadContract.split("\n")
+    const programType = programArray[1]
+    return programArray
+}
 
 export const generateMintingContractWithParams = (threadPolicy: string, tokenName: string): any => {
     const program = Program.new(mintingContract);

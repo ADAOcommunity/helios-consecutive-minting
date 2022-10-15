@@ -22,7 +22,7 @@ const LoadingModal = (props: any) => {
 
     return (
         <>
-            <input checked={props.active} type="checkbox" id="my-modal-3" className="modal-toggle" />
+            <input onChange={()=>{}}  checked={props.active} type="checkbox" id="my-modal-3" className="modal-toggle" />
             <div className="modal">
                 <div className="modal-box relative text-center">
                     <div className="radial-progress text-xs " style={{ "--value": value, "--size": "5rem", "--thickness": "2px" } as HTMLProps<number>}>Loading...</div>
