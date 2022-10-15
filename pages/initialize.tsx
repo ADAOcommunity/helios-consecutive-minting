@@ -30,7 +30,9 @@ const Initialize: NextPage = () => {
             if (walletStore.name != "") {
                 setLoading(true)
                 initLucid(walletStore.name).then((Lucid: Lucid) => { setLucid(Lucid) })
+                setShowModal(false)
             } else {
+                console.log(walletStore)
                 setLoading(false)
                 setDisplayMessage({ title: "Not connected", message: "Close this modal and connect your wallet." })
                 setShowModal(true)
