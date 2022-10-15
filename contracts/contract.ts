@@ -1,5 +1,5 @@
 
-const optimize = false;
+const optimize = true;
 import { MintingPolicyHash, Program, PubKeyHash } from '@hyperionbt/helios'
 import { C, Data, fromHex, toHex } from 'lucid-cardano';
 
@@ -17,11 +17,11 @@ export const mintingContract = `
 minting  consecutive_mint
 
 const THREAD_POLICY_BYTES = #
-const thread_nft: Value = Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), ("thread").encode_utf8()), 1)
+const NAME = ""
+const thread_nft: Value = Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), NAME.encode_utf8()), 1)
 
 func main(ctx: ScriptContext) -> Bool {
     tx: Tx = ctx.tx;
-    print("hello");
     tx.outputs.head.value.contains(thread_nft)
 }`;
 
@@ -29,7 +29,7 @@ const threadContract = `
 spending thread_contract
 
 //const THREAD_POLICY_BYTES = #
-//const thread_nft: Value = Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), ("thread").encode_utf8()), 1)
+//const thread_nft: Value = Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), NAME.encode_utf8()), 1)
 struct Datum {
     token_name:          String                      //the name of the nft collection
     minting_policy_hash: MintingPolicyHash  //the policy hash of the nft collection
@@ -41,8 +41,6 @@ struct Datum {
     seller_address:      String
 
     func next_datum(self, to_add: Int) -> Datum {
-        print((self.token_name+(self.count+1).show()).encode_utf8().show());
-        print(self.minting_policy_hash.show());
         Datum {
             token_name: self.token_name,
             minting_policy_hash: self.minting_policy_hash,
@@ -70,7 +68,6 @@ struct Datum {
             self.minting_policy_hash, 
             (self.token_name+new_datum.count.show()).encode_utf8()
         );
-        print(self.includes_thread_nft(ctx, tx, new_datum).show());
         value_minted == Value::new(nft_assetclass, 1) &&
         self.includes_thread_nft(ctx, tx, new_datum)
     }
@@ -98,7 +95,7 @@ const DATUM: Datum = Datum {
     token_name: NAME,
     minting_policy_hash: MintingPolicyHash::new(NFT_POLICY_BYTES),
     max_supply: SUPPLY,
-    thread_nft:  Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), ("thread").encode_utf8()), 1),
+    thread_nft:  Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), NAME.encode_utf8()), 1),
     seller_pubkey:     PubKeyHash::new(SELLER_BYTES),
     price: PRICE,
     count: COUNT,
@@ -108,9 +105,9 @@ const DATUM: Datum = Datum {
 
 const src = threadContract + datumScript;
 
-export const generateMintingContractWithParams = (threadPolicy: string): any => {
+export const generateMintingContractWithParams = (threadPolicy: string, tokenName: string): any => {
     const program = Program.new(mintingContract);
-
+    program.changeParam("NAME", `"${tokenName}"`);
     if (threadPolicy === null) {
         throw new Error("unexpected null verification policy");
     } else {
@@ -118,7 +115,6 @@ export const generateMintingContractWithParams = (threadPolicy: string): any => 
         program.changeParam("THREAD_POLICY_BYTES", JSON.stringify(policy.bytes))
         //program.changeParam("THREAD_POLICY_BYTES", "#" + threadPolicy)
     }
-    console.log(program.toString());
     return program.compile(optimize);
 }
 
@@ -155,8 +151,8 @@ export const generateDatum = (sellerPkh: string, sellerAddress: string, supply: 
     program.changeParam("PRICE", price.toString())
     program.changeParam("SELLER_ADDRESS", JSON.stringify(sellerAddress))
 
-
-    console.log(program.evalParam("DATUM").data.toSchemaJson())
+    /* console.log(program.toString())
+    console.log(program.evalParam("DATUM").data.toSchemaJson()) */
     return toHex(C.encode_json_str_to_plutus_datum(program.evalParam("DATUM").data.toSchemaJson(), 1).to_bytes())
 }
 
