@@ -34,7 +34,7 @@ const ContractCodePage: NextPage = () => {
                   break
                 }
               }
-              return <pre key={index} data-prefix={index.toString()}>{line}</pre>
+              return <pre key={index} data-prefix={(index+1).toString()}>{line}</pre>
             })}
           </div>
         </div>
@@ -53,7 +53,7 @@ const ContractCodePage: NextPage = () => {
                   break
                 }
               }
-              return <pre key={index} data-prefix={index.toString()}>{line}</pre>
+              return <pre key={index} data-prefix={(index+1).toString()}>{line}</pre>
             })}
           </div>
         </div>

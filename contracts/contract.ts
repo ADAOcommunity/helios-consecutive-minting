@@ -107,13 +107,15 @@ export const generateStyledMintingContract = (threadPolicy: string, tokenName: s
     let contract = mintingContract.replace('NAME = ""', `NAME = "${tokenName}"`)
     contract = contract.replace('THREAD_POLICY_BYTES = #', `THREAD_POLICY_BYTES = #${threadPolicy}`)
     const programArray = contract.split("\n")
-    const programType = programArray[1]
+    programArray.shift()
+    const programType = programArray[0]
     return programArray
 }
 
 export const generateStyledThreadContract = (): any => {
     const programArray = threadContract.split("\n")
-    const programType = programArray[1]
+    programArray.shift()
+    const programType = programArray[0]
     return programArray
 }
 
