@@ -106,7 +106,7 @@ const ContractCodePage: NextPage = () => {
                   return <pre key={index} data-prefix={(index + 1).toString()}>
                     <span className="text-primary">{declareVar.split(":")[0]}: </span>
                     <span className="text-warning">{declareVar.split(":")[1]?.replace(" ", "")} = </span>
-                    <span className="text-primary">{declareVarLine[1].replace(";", "")}</span><span className="text-secondary">;</span>
+                    <span className="text-primary">{declareVarLine[1]}</span>
                   </pre>
                 } else {
                   return <pre key={index} data-prefix={(index + 1).toString()}>{line}</pre>

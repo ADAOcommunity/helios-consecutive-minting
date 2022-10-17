@@ -29,10 +29,10 @@ const threadContract = `
 spending thread_contract
 
 struct Datum {
-    token_name:          String                      //the name of the nft collection
-    minting_policy_hash: MintingPolicyHash  //the policy hash of the nft collection
-    max_supply:          Int                         //max supply of the nft collection
-    thread_nft:          Value                    //Value of the thread token that will be attached to the datum with the count
+    token_name:          String                  //the name of the nft collection
+    minting_policy_hash: MintingPolicyHash       //the policy hash of the nft collection
+    max_supply:          Int                     //max supply of the nft collection
+    thread_nft:          Value                   //Value of the thread token that will be attached to the datum with the count
     seller_pubkey:       PubKeyHash
     price:               Int
     count:               Int
@@ -90,14 +90,14 @@ const NFT_POLICY_BYTES = #
 const PRICE = 0
 const COUNT = 0
 const DATUM: Datum = Datum {
-    token_name: NAME,
+    token_name:          NAME,
     minting_policy_hash: MintingPolicyHash::new(NFT_POLICY_BYTES),
-    max_supply: SUPPLY,
-    thread_nft:  Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), NAME.encode_utf8()), 1),
-    seller_pubkey:     PubKeyHash::new(SELLER_BYTES),
+    max_supply:          SUPPLY,
+    thread_nft:          Value::new(AssetClass::new(MintingPolicyHash::new(THREAD_POLICY_BYTES), NAME.encode_utf8()), 1),
+    seller_pubkey:       PubKeyHash::new(SELLER_BYTES),
     price: PRICE,
     count: COUNT,
-    seller_address: SELLER_ADDRESS
+    seller_address:      SELLER_ADDRESS
 }
 `;
 
