@@ -1,5 +1,5 @@
 
-const optimize = true;
+const optimize = false;
 import { MintingPolicyHash, Program, PubKeyHash } from '@hyperionbt/helios'
 import { C, Data, fromHex, toHex } from 'lucid-cardano';
 
@@ -69,14 +69,26 @@ struct Datum {
         value_minted == Value::new(nft_assetclass, 1) &&
         self.includes_thread_nft(ctx, tx, new_datum)
     }
+    func minted_did(self, tx: Tx) -> Bool {
+        print("here");
+
+        value_minted: Value = tx.minted;
+        nft_assetclass: AssetClass = AssetClass::new(
+            self.minting_policy_hash, 
+            #
+        );
+        value_minted.contains(Value::new(nft_assetclass, 1)) 
+    }
 }
 
 func main(datum: Datum, ctx: ScriptContext) -> Bool {
     tx: Tx = ctx.tx;
-    datum.increased_correctly(1, ctx, tx) &&
-    datum.paied_price(tx)
+    datum.minted_did(tx) || (datum.increased_correctly(1, ctx, tx) &&
+    datum.paied_price(tx))
 }
 `
+
+
 
 const datumScript = `
 // code to generate a Datum for a new nft mint
