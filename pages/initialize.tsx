@@ -32,7 +32,6 @@ const Initialize: NextPage = () => {
                 initLucid(walletStore.name).then((Lucid: Lucid) => { setLucid(Lucid) })
                 setShowModal(false)
             } else {
-                console.log(walletStore)
                 setLoading(false)
                 setDisplayMessage({ title: "Not connected", message: "Close this modal and connect your wallet." })
                 setShowModal(true)
@@ -53,17 +52,18 @@ const Initialize: NextPage = () => {
         }
     }, [lucid, walletStore.name, walletStore.address])
 
-    const addOutputs = (tx: Tx, sellerPkh: string, threadPolicyId: string, nftPolicyId: string, price: number, threadAddress: string)=>{
+    const addOutputs = (tx: Tx, sellerPkh: string, threadPolicyId: string, nftPolicyId: string, price: number, threadAddress: string) => {
         let txWithOutputs = tx;
         const interval = Math.ceil(maxSupply / threadNum)
-        const lastInterval = maxSupply - interval * (threadNum-1)
+        const lastInterval = maxSupply - interval * (threadNum - 1)
         const threadToken = threadPolicyId + Buffer.from(nftName).toString("hex")
-        for(let i=0; i<(maxSupply-interval); i=i+interval){
-            let datum = generateDatum(sellerPkh, walletStore.address, i+interval, nftName, threadPolicyId, nftPolicyId, price * 1000000, i)
-            txWithOutputs=txWithOutputs.payToContract(threadAddress, { inline: datum }, { [threadToken]: BigInt(1) })
+        for (let i = 0; i < (maxSupply - interval); i = i + interval) {
+            let datum = generateDatum(sellerPkh, walletStore.address, i + interval, nftName, threadPolicyId, nftPolicyId, price * 1000000, i)
+            txWithOutputs = txWithOutputs.payToContract(threadAddress, { inline: datum }, { [threadToken]: BigInt(1) })
         }
-        let datum = generateDatum(sellerPkh, walletStore.address, maxSupply, nftName, threadPolicyId, nftPolicyId, price * 1000000, maxSupply-lastInterval-1)
-        txWithOutputs=txWithOutputs.payToContract(threadAddress, { inline: datum}, { [threadToken]: BigInt(1) })
+        console.log("output added")
+        let datum = generateDatum(sellerPkh, walletStore.address, maxSupply, nftName, threadPolicyId, nftPolicyId, price * 1000000, maxSupply - lastInterval)
+        txWithOutputs = txWithOutputs.payToContract(threadAddress, { inline: datum }, { [threadToken]: BigInt(1) })
         return txWithOutputs
     }
     const createScripts = (seedPolicyId: string) => {
@@ -92,15 +92,37 @@ const Initialize: NextPage = () => {
         const threadPolicyId = lucid!.utils.validatorToScriptHash(seedScript!)
         const mintingScriptData = createScripts(threadPolicyId)
         const nftPolicyId = lucid!.utils.validatorToScriptHash(mintingScriptData.mintScript!)
+
         let datum = generateDatum(sellerPkh, walletStore.address, maxSupply, nftName, threadPolicyId, nftPolicyId, price * 1000000, 0)
         if (lucid) {
             const tx = await lucid.newTx()
                 .addSigner(walletStore.address)
                 // .payToContract(seedScriptAddress, Data.empty(), {})
                 .mintAssets({ [threadToken]: BigInt(threadNum) }, Data.empty())
+                .mintAssets({ [nftPolicyId]: BigInt(1) }, Data.empty())
+                .attachMetadata(725, {
+                    "version": "1.0",
+                    [nftPolicyId]: {
+                        [nftName]: {
+                            "type": "Ed25519VerificationKey2020",
+                            "files": [
+                                {
+                                    "src": "ipfs://QmacjTQe5q1ur2FbqW9TehScoP7cZEcAWnSA6gz4FEEMi2",
+                                    "name": "CIP-0066_NMKR_IAMX",
+                                    "mediaType": "application/ld+json"
+                                }
+                            ],
+                            "@context": "https://github.com/IAMXID/did-method-iamx"
+                        }
+                    }
+
+                })
+                .attachMintingPolicy(mintingScriptData.mintScript!)
                 //.payToContract(mintingScriptData.threadAddress, { inline: datum }, { [threadToken]: BigInt(1) })
                 .attachMintingPolicy(seedScript!)
-            const txComplete = await addOutputs(tx, sellerPkh, threadPolicyId, nftPolicyId, price, mintingScriptData.threadAddress).complete({ nativeUplc: false });
+            const txComplete = await addOutputs(tx, sellerPkh, threadPolicyId, nftPolicyId, price, mintingScriptData.threadAddress)
+                .payToAddress(walletStore.address, { [nftPolicyId]: BigInt(1) })
+                .complete();
             const signedTx = await txComplete.sign().complete();
             const txHash = await signedTx.submit()
             setDisplayMessage({ title: "Transaction submitted", message: `Tx hash: ${txHash}` })

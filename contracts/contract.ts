@@ -51,32 +51,60 @@ struct Datum {
         }
     }
     func paied_price(self, tx: Tx) -> Bool {
+        value_minted: Value = tx.minted;
+        minted_assets: Map[ByteArray]Int = value_minted.get_policy(self.minting_policy_hash);
+        length: Int = minted_assets.length;
         sent_to_seller: Value = tx.value_sent_to(self.seller_pubkey);
-        sent_to_seller.get(AssetClass::ADA) >= self.price
+        sent_to_seller.get(AssetClass::ADA) >= self.price * length
     }
     func includes_thread_nft(self, ctx: ScriptContext, tx: Tx, new_datum: Datum) -> Bool {
         contract_hash: ValidatorHash = ctx.get_current_validator_hash();
         locked_by_datum: Value = tx.value_locked_by_datum(contract_hash, new_datum, true);
         locked_by_datum.contains(self.thread_nft)
     }
-    func increased_correctly(self, to_add: Int, ctx: ScriptContext, tx: Tx) -> Bool {
-        value_minted: Value = tx.minted;
-        new_datum: Datum = self.next_datum(to_add);
+    func are_consecutive(self, minted: Value, length: Int, counter: Int) -> Bool {
         nft_assetclass: AssetClass = AssetClass::new(
             self.minting_policy_hash, 
-            (self.token_name+new_datum.count.show()).encode_utf8()
+            (self.token_name+counter.show()).encode_utf8()
         );
-        value_minted == Value::new(nft_assetclass, 1) &&
+        are_consecutive: Bool = minted.get(nft_assetclass) == 1;
+        if(are_consecutive && counter < self.count+length && counter < self.max_supply){ 
+            new_count: Int = counter + 1;
+            self.are_consecutive(minted, length, new_count)
+        } else if (are_consecutive && counter <= self.max_supply){
+            true
+        } else {
+            false
+        }
+    }
+    func increased_correctly(self, ctx: ScriptContext, tx: Tx) -> Bool {
+        value_minted: Value = tx.minted;
+        minted_assets: Map[ByteArray]Int = value_minted.get_policy(self.minting_policy_hash);
+        length: Int = minted_assets.length;
+        minted_consecutively: Bool = self.are_consecutive(value_minted, length, self.count+1);
+        print(minted_consecutively.show());
+        new_datum: Datum = self.next_datum(length);
+        minted_consecutively &&
         self.includes_thread_nft(ctx, tx, new_datum)
+    }
+    func minted_did(self, tx: Tx) -> Bool {    //used to mint the collection token for DID (CIP-066)
+        value_minted: Value = tx.minted;
+        nft_assetclass: AssetClass = AssetClass::new(
+            self.minting_policy_hash, 
+            #
+        );
+        value_minted.contains(Value::new(nft_assetclass, 1)) 
     }
 }
 
 func main(datum: Datum, ctx: ScriptContext) -> Bool {
     tx: Tx = ctx.tx;
-    datum.increased_correctly(1, ctx, tx) &&
-    datum.paied_price(tx)
+    datum.minted_did(tx) || (datum.increased_correctly(ctx, tx) &&
+    datum.paied_price(tx))
 }
 `
+
+
 
 const datumScript = `
 // code to generate a Datum for a new nft mint
