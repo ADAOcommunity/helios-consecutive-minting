@@ -9,12 +9,6 @@ const seller_pubkey: PubKeyHash = PubKeyHash::new(${SELLER_BYTES})
 
 func main(ctx: ScriptContext) -> Bool {
     tx: Tx = ctx.tx;
-    // nft_assetclass: AssetClass = AssetClass::new(
-    //    ctx.get_current_minting_policy_hash(), 
-    //     ${tokenName}.encode_utf8()
-    // );
-    // value_minted: Value = tx.minted;
-    // value_minted == Value::new(nft_assetclass, 1) &&
     tx.is_signed_by(seller_pubkey)
 }`;
 

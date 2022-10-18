@@ -32,7 +32,6 @@ const Initialize: NextPage = () => {
                 initLucid(walletStore.name).then((Lucid: Lucid) => { setLucid(Lucid) })
                 setShowModal(false)
             } else {
-                console.log(walletStore)
                 setLoading(false)
                 setDisplayMessage({ title: "Not connected", message: "Close this modal and connect your wallet." })
                 setShowModal(true)
@@ -62,7 +61,8 @@ const Initialize: NextPage = () => {
             let datum = generateDatum(sellerPkh, walletStore.address, i + interval, nftName, threadPolicyId, nftPolicyId, price * 1000000, i)
             txWithOutputs = txWithOutputs.payToContract(threadAddress, { inline: datum }, { [threadToken]: BigInt(1) })
         }
-        let datum = generateDatum(sellerPkh, walletStore.address, maxSupply, nftName, threadPolicyId, nftPolicyId, price * 1000000, maxSupply - lastInterval - 1)
+        console.log("output added")
+        let datum = generateDatum(sellerPkh, walletStore.address, maxSupply, nftName, threadPolicyId, nftPolicyId, price * 1000000, maxSupply - lastInterval)
         txWithOutputs = txWithOutputs.payToContract(threadAddress, { inline: datum }, { [threadToken]: BigInt(1) })
         return txWithOutputs
     }
@@ -122,7 +122,7 @@ const Initialize: NextPage = () => {
                 .attachMintingPolicy(seedScript!)
             const txComplete = await addOutputs(tx, sellerPkh, threadPolicyId, nftPolicyId, price, mintingScriptData.threadAddress)
                 .payToAddress(walletStore.address, { [nftPolicyId]: BigInt(1) })
-                .complete({ nativeUplc: false });
+                .complete();
             const signedTx = await txComplete.sign().complete();
             const txHash = await signedTx.submit()
             setDisplayMessage({ title: "Transaction submitted", message: `Tx hash: ${txHash}` })

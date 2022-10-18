@@ -12,7 +12,7 @@
     "@hyperionbt/helios": "^0.7.1",
     "daisyui": "^2.31.0",
     "easy-peasy": "^5.1.0",
-    "lucid-cardano": "^0.6.6",
+    "lucid-cardano": "^0.6.7",
     "next": "12.3.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"
