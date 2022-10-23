@@ -2,7 +2,7 @@ import type { NextPage } from 'next'
 import WalletConnect from '../components/WalletConnect'
 import { useStoreState } from "../utils/store"
 import { useState, useEffect } from 'react'
-import { Data, Lucid, SpendingValidator, Tx, TxComplete, UTxO, } from 'lucid-cardano'
+import { C, Data, Lucid, SpendingValidator, Tx, TxComplete, UTxO, } from 'lucid-cardano'
 import initLucid from '../utils/lucid'
 import { generateDatum, generateMintingContractWithParams, generateThreadContract, reconstructDatum, ReconstructedDatum } from '../contracts/contract'
 import MessageModal from '../components/MessageModal'
@@ -10,6 +10,7 @@ import LoadingModal from '../components/LoadingModal'
 import { useRouter } from 'next/router'
 import { url } from 'inspector'
 import Link from 'next/link';
+import { Console } from 'console'
 
 const MintPage: NextPage = () => {
     const router = useRouter();
@@ -33,6 +34,7 @@ const MintPage: NextPage = () => {
 
     useEffect(() => {
         if (walletStore.name != "") {
+            setShowModal(false)
             initLucid(walletStore.name).then((Lucid: Lucid) => { setLucid(Lucid) })
         } else {
             setLoading(false)
@@ -97,12 +99,32 @@ const MintPage: NextPage = () => {
     }
     const getMintAssets = (reconstructedDatum: ReconstructedDatum, assetCount: number) => {
         let assets: any = {}
+        let names = []
         for (let i = reconstructedDatum.count + 1; i <= reconstructedDatum.count + assetCount; i++) {
             const nftNumber = i
             const nftAssetname = nftPolicyId + Buffer.from(reconstructedDatum.tokenName + nftNumber.toString()).toString("hex")
             assets[nftAssetname] = 1
+            names.push(reconstructedDatum.tokenName + nftNumber.toString())
         }
-        return assets
+        return { assets, names }
+    }
+    const addMetadata = (tx: Tx, tokenName: string, assets: any) => {
+        let txWithMeta: Tx = tx
+        let meta: any = { [nftPolicyId]: {} }
+        for (let thisName of assets) {
+            console.log(thisName)
+            let tokenNumber = thisName.replace(tokenName, "")
+            console.log(tokenName + " #" + tokenNumber)
+            meta[nftPolicyId][thisName] = {
+                image: "ipfs://QmNyHUZxfRxGpwg9QSbe3cMDkaT8so17TRvzXpNio5gbGf",
+                mediaType: "image/png",
+                name: tokenName + " #" + tokenNumber,
+                description: "This is a cool NFT minted by a Plutus SC."
+            }
+        }
+
+        txWithMeta.attachMetadata(721, meta)
+        return txWithMeta
     }
     const mint = async () => {
         setShowModal(false)
@@ -118,7 +140,9 @@ const MintPage: NextPage = () => {
             const nftAssetname = nftPolicyId + Buffer.from(refUtxo!.reconstructedDatum.tokenName + nftNumber.toString()).toString("hex")
             const assets = getMintAssets(refUtxo!.reconstructedDatum, amountMinted)
             if (lucid) {
-                let tx: TxComplete | undefined = undefined
+                //  let tx: TxComplete | undefined = undefined
+                let tx: Tx
+                let txComplete: TxComplete | undefined = undefined
                 try {
                     tx = await lucid.newTx()
                         .addSigner(walletStore.address)
@@ -129,29 +153,18 @@ const MintPage: NextPage = () => {
                         .attachMintingPolicy({ type: "PlutusV2", script: mintPolicyScript! })
                         .attachMintingPolicy(threadScript!)
                         // .mintAssets({ [nftAssetname]: BigInt(3) }, Data.empty())
-                        .mintAssets(assets, Data.empty())
-                        .attachMetadata(721, {
-                            [nftPolicyId]: {
-                                [refUtxo!.reconstructedDatum.tokenName + nftNumber.toString()]: {
-                                    image: "ipfs://QmNyHUZxfRxGpwg9QSbe3cMDkaT8so17TRvzXpNio5gbGf",
-                                    mediaType: "image/png",
-                                    name: refUtxo!.reconstructedDatum.tokenName + " #" + nftNumber,
-                                    description: "This is a cool NFT minted by a Plutus SC."
-                                },
-                            },
-                        })
-                        // .payToAddress(walletStore.address, { [nftAssetname]: BigInt(3) })
-                        .payToAddress(walletStore.address, assets)
+                        .mintAssets(assets.assets, Data.empty())
+                        .payToAddress(walletStore.address, assets.assets)
                         .payToAddress(sellerAddress, price)
-                        .complete();
-
+                    txComplete = await addMetadata(tx, refUtxo!.reconstructedDatum.tokenName, assets.names)
+                        .complete({ nativeUplc: false });
                 } catch (err) {
                     console.log(err)
                     //mint()
                 }
-                if (tx) {
+                if (txComplete) {
                     try {
-                        const signedTx = await tx.sign().complete();
+                        const signedTx = await txComplete.sign().complete();
                         const txHash = await signedTx.submit()
                         setDisplayMessage({ title: "Transaction submitted", message: `Tx hash: ${txHash}` })
                         setShowModal(true)

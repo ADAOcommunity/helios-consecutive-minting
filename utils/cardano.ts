@@ -3,7 +3,7 @@ import { getAddressDetails, UTxO } from "lucid-cardano";
 export const getInputsFromPkh = async(txHash: string, addressPkh: string) =>{
     var inputsFromAddr = [];
     const data = await fetch(
-        `https://cardano-preprod.blockfrost.io/api/v0/txs/${txHash}/utxos`,
+        `https://cardano-testnet.blockfrost.io/api/v0/txs/${txHash}/utxos`,
         {
             headers: {
                 // Your Blockfrost API key
